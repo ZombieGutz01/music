@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Music dump</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #d6f0ff;
+      padding: 20px;
+      color: black;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+    }
+
+    /* MAIN PLAYER BOX */
+    .player {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+      width: 400px;
+    }
+
+    /* LEFT VIOLIN BOX */
+    #violinBox {
+      width: 200px;
+      min-height: 250px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    }
+
+    /* SONG LIST SCROLL BOX */
+    .scrollBox {
+      max-height: 300px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .scrollBox::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .scrollBox::-webkit-scrollbar-thumb {
+      background: #aac8ff;
+      border-radius: 10px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      background: #cce8ff;
+      color: black;
+      transition: 0.2s;
+    }
+
+    li:hover {
+      background: #b8dbff;
+      box-shadow: 0 0 10px rgba(140, 190, 255, 0.8);
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
+
+    /* NIGHT MODE AUDIO FIXES */
+    .night audio::-webkit-media-controls-panel {
+      background-color: #1a274a !important;
+    }
+    .night audio::-webkit-media-controls-play-button {
+      background-color: #0b1630 !important;
+      border-radius: 50%;
+    }
+    .night audio::-webkit-media-controls-timeline {
+      background-color: #0b1630 !important;
+    }
+
+    .credits {
+      font-size: 12px;
+      color: #777;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LEFT SIDE VIOLIN BOX -->
+  <div id="violinBox">
+    <h3>My Violin Covers</h3>
+    <ul id="violinList">
+      <li data-src="Rev.mp3">A warm up - me!</li>
+      <!-- Add violin covers here -->
+    </ul>
+  </div>
+
+  <!-- MAIN PLAYER -->
+  <div class="player">
+    <h2>Music dump</h2>
+    <p>Click a song to play it:</p>
+
+    <div class="scrollBox">
+      <ul id="playlist">
+        <li data-src="love.mp3">Love – Bensound</li>
+        <li data-src="dreams.mp3">Dreams – Bensound</li>
+        <li data-src="anewbeginning.mp3">A New Beginning - Bensound</li>
+        <li data-src="beyondtheline.mp3">Beyond The Line - Bensound</li>
+        <li data-src="dawnofchange.mp3">Dawn Of Change - Bensound</li>
+        <li data-src="yesterday.mp3">Yesterday - Bensound</li>
+        <li data-src="echoofsadness.mp3">Echo Of Sadness - Bensound</li>
+        <li data-src="sleepless.mp3">Sleepless - Bensound</li>
+        <li data-src="melancholylull.mp3">Melancholy Lull - Bensound</li>
+        <li data-src="thelightbetweenus.mp3">The Light Between Us - Bensound</li>
+        <li data-src="motion.mp3">Motion - Bensound</li>
+        <li data-src="nothingon.mp3">Nothing On - Bensound</li>
+        <li data-src="laststop.mp3">Last Stop - Bensound</li>
+        <li data-src="asyourworldgrowssmaller.mp3">As Your World Grows Smaller - Bensound</li>
+        <li data-src="vanishinghope.mp3">Vanishing Hope - Bensound</li>
+        <li data-src="sunlitdepths.mp3">Sunlit Depths - Bensound</li>
+        <li data-src="sunsetreverie.mp3">Sunset Reverie - Bensound</li>
+      </ul>
+    </div>
+
+    <p id="nowPlaying" style="font-size:14px; color:#555; margin-top:10px; display:none;"></p>
+
+    <audio id="audioPlayer" controls></audio>
+
+    <!-- LOOP + SHUFFLE BUTTONS -->
+    <div style="text-align:center; margin-top:10px;">
+      <button id="loopBtn"
+        style="padding:6px 10px; border:none; border-radius:8px; background:#cce8ff; cursor:pointer;">
+        Loop: OFF
+      </button>
+
+      <button id="shuffleBtn"
+        style="padding:6px 10px; border:none; border-radius:8px; background:#cce8ff; cursor:pointer; margin-left:10px;">
+        Shuffle: OFF
+      </button>
+    </div>
+
+    <!-- NIGHT MODE BUTTON -->
+    <div style="text-align:center; margin-top:20px;">
+      <button id="modeToggle" style="padding:8px 14px; border:none; border-radius:8px; background:#cce8ff; cursor:pointer;">
+        Switch to Night Mode
+      </button>
+    </div>
+
+    <div class="credits">
+      Music: <a href="https://www.bensound.com" target="_blank">Bensound.com</a>
+      - ALL violin covers are mine. I do NOT own the original songs.
+    </div>
+  </div>
+
+  <script>
+  const audio = document.getElementById('audioPlayer');
+  const nowPlaying = document.getElementById('nowPlaying');
+  const modeToggle = document.getElementById('modeToggle');
+
+  const loopBtn = document.getElementById('loopBtn');
+  const shuffleBtn = document.getElementById('shuffleBtn');
+
+  const bensoundItems = [...document.querySelectorAll('#playlist li')];
+  const violinItems = [...document.querySelectorAll('#violinList li')];
+
+  let currentIndex = -1;
+  let currentList = null;
+  let loopOn = false;
+  let shuffleOn = false;
+
+  function playSong(list, index) {
+    const items = list === "bensound" ? bensoundItems : violinItems;
+    const item = items[index];
+    if (!item) return;
+
+    currentList = list;
+    currentIndex = index;
+
+    audio.src = item.getAttribute('data-src');
+    audio.play();
+
+    nowPlaying.innerText = "Now Playing: " + item.innerText;
+    nowPlaying.style.display = 'block';
+  }
+
+  /* Click handlers */
+  bensoundItems.forEach((item, index) => {
+    item.addEventListener('click', () => playSong("bensound", index));
+  });
+
+  violinItems.forEach((item, index) => {
+    item.addEventListener('click', () => playSong("violin", index));
+  });
+
+  /* When song ends */
+  audio.addEventListener('ended', () => {
+    const items = currentList === "bensound" ? bensoundItems : violinItems;
+
+    if (loopOn) {
+      playSong(currentList, currentIndex);
+      return;
+    }
+
+    if (shuffleOn) {
+      let nextIndex;
+      do {
+        nextIndex = Math.floor(Math.random() * items.length);
+      } while (nextIndex === currentIndex && items.length > 1);
+
+      playSong(currentList, nextIndex);
+      return;
+    }
+
+    let nextIndex = currentIndex + 1;
+
+    if (nextIndex < items.length) {
+      playSong(currentList, nextIndex);
+    } else {
+      playSong(currentList, 0);
+    }
+  });
+
+  /* Loop button */
+  loopBtn.addEventListener('click', () => {
+    loopOn = !loopOn;
+    loopBtn.innerText = "Loop: " + (loopOn ? "ON" : "OFF");
+
+    if (loopOn) {
+      shuffleOn = false;
+      shuffleBtn.innerText = "Shuffle: OFF";
+    }
+  });
+
+  /* Shuffle button */
+  shuffleBtn.addEventListener('click', () => {
+    shuffleOn = !shuffleOn;
+    shuffleBtn.innerText = "Shuffle: " + (shuffleOn ? "ON" : "OFF");
+
+    if (shuffleOn) {
+      loopOn = false;
+      loopBtn.innerText = "Loop: OFF";
+    }
+  });
+
+  /* NIGHT MODE */
+  let night = false;
+
+  modeToggle.addEventListener('click', () => {
+    night = !night;
+    document.body.classList.toggle('night', night);
+
+    if (night) {
+      document.body.style.background = '#0d1b3a';
+
+      document.querySelectorAll('.player, #violinBox').forEach(box => {
+        box.style.background = '#1a274a';
+        box.style.color = 'black';
+      });
+
+      document.querySelectorAll('li').forEach(button => {
+        button.style.background = '#0b1630';
+        button.style.color = 'black';
+      });
+
+      document.querySelector('.scrollBox').style.background = '#1a274a';
+      modeToggle.innerText = 'Switch to Day Mode';
+      modeToggle.style.background = '#0b1630';
+
+    } else {
+      document.body.style.background = '#d6f0ff';
+
+      document.querySelectorAll('.player, #violinBox').forEach(box => {
+        box.style.background = 'white';
+        box.style.color = 'black';
+      });
+
+      document.querySelectorAll('li').forEach(button => {
+        button.style.background = '#cce8ff';
+        button.style.color = 'black';
+      });
+
+      document.querySelector('.scrollBox').style.background = 'white';
+      modeToggle.innerText = 'Switch to Night Mode';
+      modeToggle.style.background = '#cce8ff';
+    }
+  });
+  </script>
+
+</body>
+</html>
